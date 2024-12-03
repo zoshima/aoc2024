@@ -66,6 +66,8 @@ func loadInput(fp string) []string {
 	regex := regexp.MustCompile(`mul\([0-9]+,[0-9]+\)|don't\(\)|do\(\)`)
 
 	file, _ := os.Open(fp)
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {

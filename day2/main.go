@@ -84,6 +84,8 @@ func isValid(row []int, skipIndex int) bool {
 
 func loadInput(fp string) [][]int {
 	file, _ := os.Open(fp)
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 
 	input := make([][]int, 0)

@@ -17,15 +17,39 @@ func part1(fp string) int {
 	input := loadInput(fp)
 	result := 0
 
-	for _, line := range input {
-		result += eval(line)
+	for _, instruction := range input {
+		if instruction[:3] == "mul" {
+			result += eval(instruction)
+		}
 	}
 
 	return result
 }
 
 func part2(fp string) int {
-	return 0
+	input := loadInput(fp)
+	result := 0
+
+	do := true
+
+	for _, instruction := range input {
+		fn := instruction[:3]
+
+		switch fn {
+		case "mul":
+			if !do {
+				continue
+			}
+
+			result += eval(instruction)
+		case "don":
+			do = false
+		default:
+			do = true
+		}
+	}
+
+	return result
 }
 
 func eval(instruction string) int {
@@ -39,7 +63,7 @@ func eval(instruction string) int {
 
 func loadInput(fp string) []string {
 	input := make([]string, 0)
-	regex := regexp.MustCompile(`mul\([0-9]+,[0-9]+\)`)
+	regex := regexp.MustCompile(`mul\([0-9]+,[0-9]+\)|don't\(\)|do\(\)`)
 
 	file, _ := os.Open(fp)
 	scanner := bufio.NewScanner(file)

@@ -5,11 +5,6 @@ import (
 	"os"
 )
 
-type Position struct {
-	X int
-	Y int
-}
-
 func main() {
 	println("part1", part1("input.txt"))
 	println("part2", part2("input.txt"))

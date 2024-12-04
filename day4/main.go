@@ -96,7 +96,34 @@ func part1(fp string) int {
 }
 
 func part2(fp string) int {
-	return 0
+	result := 0
+
+	input := loadInput(fp)
+
+	validate := func(a, b rune) bool {
+		return a != b && (a == 'M' || a == 'S') && (b == 'M' || b == 'S')
+	}
+
+	for y := 1; y < len(input)-1; y++ {
+		for x := 1; x < len(input[y])-1; x++ {
+			if input[y][x] != 'A' {
+				continue
+			}
+
+			nw := input[y-1][x-1]
+			sw := input[y+1][x-1]
+			se := input[y+1][x+1]
+			ne := input[y-1][x+1]
+
+			if !validate(nw, se) || !validate(sw, ne) {
+				continue
+			}
+
+			result++
+		}
+	}
+
+	return result
 }
 
 func loadInput(fp string) [][]rune {

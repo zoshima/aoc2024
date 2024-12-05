@@ -13,26 +13,14 @@ func main() {
 	println("part2", part2("input.txt"))
 }
 
-// map[29:[13] 47:[53 13 61 29] 53:[29 13] 61:[13 53 29] 75:[29 53 47 61 13] 97:[13 61 47 29 53 75]]
-// [[75 47 61 53 29] [97 61 53 29 13] [75 29 13] [75 97 47 61 53] [61 13 29] [97 13 75 29 47]]
-
 func part1(fp string) int {
 	m, rows := loadInput(fp)
 	result := 0
 
-RangeRows:
 	for _, row := range rows {
-		for i, n := range row {
-			entry, ok := m[n]
-			if !ok {
-				continue
-			}
-
-			for j := 0; j < i; j++ {
-				if slices.Contains(entry, row[j]) {
-					continue RangeRows
-				}
-			}
+		i, _ := isCorrect(m, row)
+		if i != -1 {
+			continue
 		}
 
 		mi := len(row) / 2
@@ -43,7 +31,42 @@ RangeRows:
 }
 
 func part2(fp string) int {
-	return 0
+	m, rows := loadInput(fp)
+	result := 0
+
+	for _, row := range rows {
+		index, conflict := isCorrect(m, row)
+		if index == -1 {
+			continue
+		}
+
+		for index != -1 {
+			row[index], row[conflict] = row[conflict], row[index]
+			index, conflict = isCorrect(m, row)
+		}
+
+		mi := len(row) / 2
+		result += row[mi]
+	}
+
+	return result
+}
+
+func isCorrect(m map[int][]int, row []int) (index int, conflict int) {
+	for i, n := range row {
+		entry, ok := m[n]
+		if !ok {
+			continue
+		}
+
+		for j := 0; j < i; j++ {
+			if slices.Contains(entry, row[j]) {
+				return i, j
+			}
+		}
+	}
+
+	return -1, -1
 }
 
 func loadInput(fp string) (map[int][]int, [][]int) {

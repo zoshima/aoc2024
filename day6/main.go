@@ -18,59 +18,54 @@ func main() {
 	println("part2", part2("input.txt"))
 }
 
-type Position struct {
-	x int
-	y int
-}
-
 func part1(fp string) int {
 	x, y, m := loadInput(fp)
-	positions, _ := traverse(x, y, North, m)
-	return len(positions)
+	return len(traverse(x, y, m))
 }
 
 func part2(fp string) int {
 	x, y, m := loadInput(fp)
 	result := 0
 
-	positions, _ := traverse(x, y, North, m)
-	for position := range positions {
-		if position.x == x && position.y == y {
+	for tile := range traverse(x, y, m) {
+		cx := int(real(tile))
+		cy := int(imag(tile))
+
+		if cx == x && cy == y {
 			continue
 		}
 
-		m[position.y][position.x] = '#'
-		_, isLooping := traverse(x, y, North, m)
-		if isLooping {
+		m[cy][cx] = '#'
+
+		if traverse(x, y, m) == nil {
 			result++
 		}
 
-		m[position.y][position.x] = '.'
+		m[cy][cx] = '.'
 	}
 
 	return result
 }
 
-func traverse(x, y, direction int, m [][]rune) (map[Position][]int, bool) {
-	locations := make(map[Position][]int)
-	isLooping := false
+func traverse(x, y int, m [][]rune) map[complex64][]int {
+	currentDirection := North
+	traversedTiles := make(map[complex64][]int)
 
 	for {
-		key := Position{x, y}
-		if directions, ok := locations[key]; ok {
-			if slices.Contains(directions, direction) {
-				isLooping = true
-				break
-			} else {
-				locations[key] = append(directions, direction)
+		key := complex(float32(x), float32(y))
+		if directions, ok := traversedTiles[key]; ok {
+			if slices.Contains(directions, currentDirection) {
+				return nil // is looping
 			}
+
+			traversedTiles[key] = append(directions, currentDirection)
 		} else {
-			locations[key] = []int{direction}
+			traversedTiles[key] = []int{currentDirection}
 		}
 
 		nx, ny := x, y
 
-		switch direction {
+		switch currentDirection {
 		case North:
 			ny -= 1
 		case East:
@@ -86,16 +81,19 @@ func traverse(x, y, direction int, m [][]rune) (map[Position][]int, bool) {
 		}
 
 		if m[ny][nx] == '#' {
-			direction++
-			if direction > West {
-				direction = North
+			if currentDirection == West {
+				currentDirection = North
+			} else {
+				currentDirection++
 			}
-		} else {
-			x, y = nx, ny
+
+			continue
 		}
+
+		x, y = nx, ny
 	}
 
-	return locations, isLooping
+	return traversedTiles
 }
 
 func loadInput(fp string) (x int, y int, m [][]rune) {
@@ -112,7 +110,6 @@ func loadInput(fp string) (x int, y int, m [][]rune) {
 			colNumber := slices.Index(line, '^')
 			if colNumber != -1 {
 				x, y = colNumber, lineNumber
-				m[y][x] = '.'
 			}
 		}
 

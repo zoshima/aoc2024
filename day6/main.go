@@ -18,15 +18,54 @@ func main() {
 	println("part2", part2("input.txt"))
 }
 
+type Position struct {
+	x int
+	y int
+}
+
 func part1(fp string) int {
 	x, y, m := loadInput(fp)
-	direction := North
+	positions, _ := traverse(x, y, North, m)
+	return len(positions)
+}
+
+func part2(fp string) int {
+	x, y, m := loadInput(fp)
 	result := 0
 
-	for {
-		if m[y][x] == '.' {
-			m[y][x] = 'X'
+	positions, _ := traverse(x, y, North, m)
+	for position := range positions {
+		if position.x == x && position.y == y {
+			continue
+		}
+
+		m[position.y][position.x] = '#'
+		_, isLooping := traverse(x, y, North, m)
+		if isLooping {
 			result++
+		}
+
+		m[position.y][position.x] = '.'
+	}
+
+	return result
+}
+
+func traverse(x, y, direction int, m [][]rune) (map[Position][]int, bool) {
+	locations := make(map[Position][]int)
+	isLooping := false
+
+	for {
+		key := Position{x, y}
+		if directions, ok := locations[key]; ok {
+			if slices.Contains(directions, direction) {
+				isLooping = true
+				break
+			} else {
+				locations[key] = append(directions, direction)
+			}
+		} else {
+			locations[key] = []int{direction}
 		}
 
 		nx, ny := x, y
@@ -56,11 +95,7 @@ func part1(fp string) int {
 		}
 	}
 
-	return result
-}
-
-func part2(fp string) int {
-	return 0
+	return locations, isLooping
 }
 
 func loadInput(fp string) (x int, y int, m [][]rune) {

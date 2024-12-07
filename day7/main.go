@@ -22,7 +22,7 @@ func part1(fp string) int {
 	var result int
 
 	for _, eq := range input {
-		if validate(eq.Operands, eq.Result) {
+		if validate(eq, 1, eq.Operands[0], false) {
 			result += eq.Result
 		}
 	}
@@ -31,30 +31,41 @@ func part1(fp string) int {
 }
 
 func part2(fp string) int {
-	return 0
+	input := loadInput(fp)
+	var result int
+
+	for i, eq := range input {
+		if validate(eq, 1, eq.Operands[0], true) {
+			println(i)
+			result += eq.Result
+		}
+	}
+
+	return result
 }
 
-func validate(arr []int, lim int) bool {
-	if len(arr) < 2 {
+func validate(eq *Equation, index int, currentOperand int, ext bool) bool {
+	if index == len(eq.Operands) {
+		return currentOperand == eq.Result
+	}
+
+	if currentOperand > eq.Result {
 		return false
 	}
 
-	sum := arr[0] + arr[1]
-	if sum == lim {
-		return true
+	operands := [3]int{
+		currentOperand + eq.Operands[index],
+		currentOperand * eq.Operands[index],
 	}
 
-	prod := arr[0] * arr[1]
-	if prod == lim {
-		return true
+	if ext {
+		operands[2], _ = strconv.Atoi(strconv.Itoa(currentOperand) + strconv.Itoa(eq.Operands[index]))
 	}
 
-	if sum < lim && validate(append([]int{sum}, arr[2:]...), lim) {
-		return true
-	}
-
-	if prod < lim && validate(append([]int{prod}, arr[2:]...), lim) {
-		return true
+	for _, operand := range operands {
+		if validate(eq, index+1, operand, ext) {
+			return true
+		}
 	}
 
 	return false

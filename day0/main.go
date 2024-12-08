@@ -3,16 +3,15 @@ package main
 import "os"
 
 func main() {
-	input := loadInput("input.txt")
-	println("part1", part1(input))
-	println("part2", part2(input))
+	println("part1", part1("input.txt"))
+	println("part2", part2("input.txt"))
 }
 
-func part1(input any) int {
+func part1(fp string) int {
 	return 0
 }
 
-func part2(input any) int {
+func part2(fp string) int {
 	return 0
 }
 

@@ -21,7 +21,7 @@ func part1(fp string) int {
 				continue
 			}
 
-			peaks := make(map[string]any)
+			peaks := make(map[string]int)
 			traverse(input, peaks, x, y, 0)
 			result += len(peaks)
 		}
@@ -31,10 +31,28 @@ func part1(fp string) int {
 }
 
 func part2(fp string) int {
-	return 0
+	result := 0
+
+	input := loadInput(fp)
+	for y := range input {
+		for x := range input[y] {
+			if input[y][x] != 0 {
+				continue
+			}
+
+			peaks := make(map[string]int)
+			traverse(input, peaks, x, y, 0)
+
+			for _, v := range peaks {
+				result += v
+			}
+		}
+	}
+
+	return result
 }
 
-func traverse(m [][]int, peaks map[string]any, x, y, height int) {
+func traverse(m [][]int, peaks map[string]int, x, y, height int) {
 	if y < 0 || y >= len(m) || x < 0 || x >= len(m[y]) {
 		return
 	}
@@ -45,7 +63,12 @@ func traverse(m [][]int, peaks map[string]any, x, y, height int) {
 
 	if height == 9 {
 		key := fmt.Sprintf("%d:%d", y, x)
-		peaks[key] = nil
+		if n, ok := peaks[key]; ok {
+			peaks[key] = n + 1
+		} else {
+			peaks[key] = 1
+		}
+
 		return
 	}
 

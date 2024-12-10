@@ -12,7 +12,7 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	want := 0
+	want := 81
 	got := part2("input_test.txt")
 
 	if want != got {

@@ -13,7 +13,6 @@ func main() {
 }
 
 func part1(fp string) int {
-	result := 0
 	input := loadInput(fp)
 
 	j := len(input) - 1
@@ -24,34 +23,50 @@ func part1(fp string) int {
 				j--
 			}
 		}
-
-		result += i * input[i].ID
 	}
 
-	for i := j; i < len(input); i++ {
-		if input[i] == nil {
+	return checksum(input)
+}
+
+func checksum(files []*File) int {
+	result := 0
+	for i := 0; i < len(files); i++ {
+		if files[i] == nil {
 			continue
 		}
 
-		result += i * input[i].ID
+		result += i * files[i].ID
 	}
 
 	return result
 }
 
 func part2(fp string) int {
-	return 0
-}
+	input := loadInput(fp)
 
-func printDisk(d []*File) {
-	for _, file := range d {
+	for i := len(input) - 1; i > 0; i-- {
+		file := input[i]
 		if file == nil {
-			print(".")
-		} else {
-			print(file.ID)
+			continue
+		}
+
+		for j, slotSize := 0, 0; j < i; j++ {
+			if input[j] != nil {
+				slotSize = 0
+				continue
+			}
+
+			slotSize++
+			if slotSize == file.Size {
+				for k := 0; k < slotSize; k++ {
+					input[j-k], input[i-k] = input[i-k], input[j-k]
+				}
+				break
+			}
 		}
 	}
-	println()
+
+	return checksum(input)
 }
 
 func loadInput(fp string) []*File {

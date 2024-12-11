@@ -1,16 +1,10 @@
 package main
 
-import "strconv"
+import "math"
 
 type Stone struct {
-	Next        *Stone
-	Value       int
-	StringValue string
-}
-
-func (s *Stone) SetValue(v int) {
-	s.Value = v
-	s.StringValue = strconv.Itoa(v)
+	Next  *Stone
+	Value int
 }
 
 func main() {
@@ -21,57 +15,89 @@ func main() {
 }
 
 func part1(input []int) int {
-	result := len(input)
+	m := make(map[int]int)
+	for i := range input {
+		m[input[i]] = 1
+	}
 
-	first := parseInput(input)
 	for i := 0; i < 25; i++ {
-		stone := first
-		for stone != nil {
-			if stone.Value == 0 {
-				stone.SetValue(1)
-			} else if len(stone.StringValue)%2 == 0 {
-				splitIndex := len(stone.StringValue) / 2
+		m = blink(m)
+	}
 
-				leftValue, _ := strconv.Atoi(stone.StringValue[:splitIndex])
-				rightValue, _ := strconv.Atoi(stone.StringValue[splitIndex:])
-
-				ns := Stone{}
-				ns.SetValue(rightValue)
-				ns.Next = stone.Next
-
-				stone.SetValue(leftValue)
-				stone.Next = &ns
-				stone = &ns
-
-				result++
-			} else {
-				stone.SetValue(stone.Value * 2024)
-			}
-
-			stone = stone.Next
-		}
+	result := 0
+	for _, v := range m {
+		result += v
 	}
 
 	return result
 }
 
 func part2(input []int) int {
-	return 0
-}
-
-func parseInput(input []int) *Stone {
-	first := Stone{}
-	first.SetValue(input[0])
-
-	prev := &first
-
-	for i := 1; i < len(input); i++ {
-		stone := Stone{}
-		stone.SetValue(input[i])
-
-		prev.Next = &stone
-		prev = &stone
+	m := make(map[int]int)
+	for i := range input {
+		m[input[i]] = 1
 	}
 
-	return &first
+	for i := 0; i < 75; i++ {
+		m = blink(m)
+	}
+
+	result := 0
+	for _, v := range m {
+		result += v
+	}
+
+	return result
+}
+
+func blink(stones map[int]int) map[int]int {
+	m := make(map[int]int)
+
+	for value, count := range stones {
+		if value == 0 {
+			increment(m, 1, count)
+			continue
+		}
+
+		valueLength := countDigits(value)
+		if valueLength%2 == 0 {
+			left, right := splitValue(value, valueLength)
+			increment(m, left, count)
+			increment(m, right, count)
+
+			continue
+		}
+
+		increment(m, value*2024, count)
+	}
+
+	return m
+}
+
+func increment(m map[int]int, key int, value int) {
+	if _, ok := m[key]; ok {
+		m[key] += value
+	} else {
+		m[key] = value
+	}
+}
+
+func splitValue(value int, numDigits int) (int, int) {
+	divisor := int(math.Pow10(numDigits / 2))
+
+	return value / divisor, value % divisor
+}
+
+func countDigits(value int) int {
+	if value < 10 {
+		return 1
+	}
+
+	c := 0
+	for value != 0 {
+		value /= 10
+		c++
+	}
+
+	return c
 }

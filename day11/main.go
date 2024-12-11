@@ -2,11 +2,6 @@ package main
 
 import "math"
 
-type Stone struct {
-	Next  *Stone
-	Value int
-}
-
 func main() {
 	input := []int{4610211, 4, 0, 59, 3907, 201586, 929, 33750}
 
